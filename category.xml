@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<site>
+    <category-def name="category.common" label="Common"/>
+    <iu>
+        <category name="category.common"/>
+        <query>
+            <expression type="match">providedCapabilities.exists(p | p.namespace == 'osgi.bundle')</expression>
+        </query>
+    </iu>
+</site>

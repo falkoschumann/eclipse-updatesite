@@ -1,0 +1,9 @@
+Changelog for Actors
+====================
+
+Version 1.0.0 - First release
+-----------------------------
+
+*   Add de.muspellheim.actors v1.1.0
+*   Add de.muspellheim.events v1.1.0
+*   Add de.muspellheim.flowdesign v3.1.1

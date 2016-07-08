@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>de.muspellheim</groupId>
+    <artifactId>updatesite</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>Eclipse Update Site</name>
+    <description>Eclipse update site with bundles of my projects.</description>
+    <url>https://github.com/falkoschumann/eclipse-updatesite</url>
+
+    <licenses>
+        <license>
+            <name>The MIT License (MIT)</name>
+            <url>https://opensource.org/licenses/MIT</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>falkoschumann</id>
+            <name>Falko Schumann</name>
+            <email>falko.schumann@muspellheim.de</email>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:https://github.com/falkoschumann/eclipse-updatesite.git</connection>
+        <developerConnection>scm:git:https://github.com/falkoschumann/eclipse-updatesite.git</developerConnection>
+        <url>https://github.com/falkoschumann/eclipse-updatesite</url>
+    </scm>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/falkoschumann/eclipse-updatesite/issues</url>
+    </issueManagement>
+
+    <ciManagement>
+        <system>Travis CI</system>
+        <url>https://travis-ci.org/falkoschumann/eclipse-updatesite</url>
+    </ciManagement>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <tycho.version>0.25.0</tycho.version>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.10</version>
+                <executions>
+                    <execution>
+                        <id>copy-bundles-for-publishing</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/source/plugins</outputDirectory>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>de.muspellheim</groupId>
+                                    <artifactId>actors</artifactId>
+                                    <version>1.1.0-SNAPSHOT</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>de.muspellheim</groupId>
+                                    <artifactId>events</artifactId>
+                                    <version>1.1.0-SNAPSHOT</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>de.muspellheim</groupId>
+                                    <artifactId>flowdesign</artifactId>
+                                    <version>3.1.1-SNAPSHOT</version>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.eclipse.tycho.extras</groupId>
+                <artifactId>tycho-p2-extras-plugin</artifactId>
+                <version>${tycho.version}</version>
+                <executions>
+                    <execution>
+                        <id>generate-p2-repository</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>publish-features-and-bundles</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>tycho-p2-plugin</artifactId>
+                <version>${tycho.version}</version>
+                <executions>
+                    <execution>
+                        <id>add-categories-to-p2-repository</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>category-p2-metadata</goal>
+                        </goals>
+                        <configuration>
+                            <target>${project.build.directory}/repository</target>
+                            <categoryDefinition>${project.basedir}/category.xml</categoryDefinition>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>tycho-p2-repository-plugin</artifactId>
+                <version>${tycho.version}</version>
+                <executions>
+                    <execution>
+                        <id>zip-p2-repository</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>archive-repository</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.10</version>
+                <executions>
+                    <execution>
+                        <id>attach-zipped-p2-repository-to-be-installed-and-deployed</id>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                                <artifact>
+                                    <file>${project.build.directory}/${project.build.finalName}.zip</file>
+                                    <type>zip</type>
+                                </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>bintray</id>
+            <repositories>
+                <repository>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                    <id>bintray-falkoschumann-maven</id>
+                    <name>bintray</name>
+                    <url>http://dl.bintray.com/falkoschumann/maven</url>
+                </repository>
+            </repositories>
+            <pluginRepositories>
+                <pluginRepository>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                    <id>bintray-falkoschumann-maven</id>
+                    <name>bintray-plugins</name>
+                    <url>http://dl.bintray.com/falkoschumann/maven</url>
+                </pluginRepository>
+            </pluginRepositories>
+            <distributionManagement>
+                <repository>
+                    <id>bintray-falkoschumann-maven</id>
+                    <name>falkoschumann-maven</name>
+                    <url>https://api.bintray.com/maven/falkoschumann/eclipse-repository/updatesite/;publish=1</url>
+                </repository>
+            </distributionManagement>
+        </profile>
+    </profiles>
+
+</project>
